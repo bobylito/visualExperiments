@@ -1,4 +1,10 @@
 <html>
+<head>
+<style type="text/css">
+*{margin:0; padding:0}
+
+</style>
+</head>
 <body>
 
 <div id="container">
@@ -15,7 +21,7 @@ void main(){
 
 <script id="2d-fragment-shader" type="x-shader/x-fragment">
 void main(){
-  gl_FragColor = vec4(0,1,0,1); 
+  gl_FragColor = vec4(gl_FragCoord.xy * vec2(0.01, 0.01) + vec2(0.1, 0.1), 0.5 ,1);
 }
 </script>
 <script type="text/javascript">
@@ -35,6 +41,11 @@ void main(){
     glCtx.shaderSource(shader, shaderSrc);
     glCtx.compileShader(shader);
 
+    if(!glCtx.getShaderParameter(shader, glCtx.COMPILE_STATUS)){
+        console.log("shader " + shader + " failed with error : " + glCtx.getShaderInfoLog(shader));
+        throw new Error("fuckit!");
+    }
+
     return shader;
   };
 
@@ -44,6 +55,11 @@ void main(){
         vShader = createShaderFromScriptElement(document, ctx, "2d-vertex-shader"),
         fShader = createShaderFromScriptElement(document, ctx, "2d-fragment-shader"),
         program = ctx.createProgram();
+
+    canvas.height = window.innerHeight;
+    canvas.width  = window.innerWidth;
+
+    ctx.viewport(0, 0, window.innerWidth, window.innerHeight);
 
     ctx.attachShader(program, vShader);
     ctx.attachShader(program, fShader);
