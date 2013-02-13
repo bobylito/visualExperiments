@@ -1,0 +1,83 @@
+<html>
+<body>
+
+<div id="container">
+
+</div>
+
+<script id="2d-vertex-shader" type="x-shader/x-vertex">
+attribute vec2 a_position;
+
+void main(){
+  gl_Position = vec4(a_position, 0, 1);
+}
+</script>
+
+<script id="2d-fragment-shader" type="x-shader/x-fragment">
+void main(){
+  gl_FragColor = vec4(0,1,0,1); 
+}
+</script>
+<script type="text/javascript">
+  function createShaderFromScriptElement(doc, glCtx, scriptId){
+    var shaderElt   = doc.getElementById(scriptId),
+        shaderSrc   = shaderElt.text,
+        shaderType  = (function(ctx, t){
+          if(t === "x-shader/x-vertex")
+            return ctx.VERTEX_SHADER;
+          else if(t === "x-shader/x-fragment")
+            return ctx.FRAGMENT_SHADER;
+          else 
+            throw new Error("Can't guess the type of the shader with id "+scriptId);
+        })(glCtx, shaderElt.type),
+        shader      = glCtx.createShader(shaderType);
+
+    glCtx.shaderSource(shader, shaderSrc);
+    glCtx.compileShader(shader);
+
+    return shader;
+  };
+
+  (function(container){
+    var canvas  = document.createElement("canvas"),
+        ctx     = canvas.getContext("experimental-webgl"),
+        vShader = createShaderFromScriptElement(document, ctx, "2d-vertex-shader"),
+        fShader = createShaderFromScriptElement(document, ctx, "2d-fragment-shader"),
+        program = ctx.createProgram();
+
+    ctx.attachShader(program, vShader);
+    ctx.attachShader(program, fShader);
+
+    ctx.linkProgram(program);
+
+    ctx.useProgram(program);
+
+    var posLoc  = ctx.getAttribLocation(program, "a_position"),
+        buffer  = ctx.createBuffer();
+
+    ctx.bindBuffer(ctx.ARRAY_BUFFER, buffer);
+    ctx.bufferData(
+      ctx.ARRAY_BUFFER,
+      new Float32Array([
+        -1.0, -1.0,
+         1.0, -1.0,
+        -1.0,  1.0,
+        -1.0,  1.0,
+         1.0, -1.0,
+         1.0,  1.0
+      ]),
+      ctx.STATIC_DRAW
+    );
+
+    ctx.enableVertexAttribArray(posLoc);
+    ctx.vertexAttribPointer(posLoc, 2, ctx.FLOAT, false, 0, 0);
+
+    ctx.drawArrays(ctx.TRIANGLES, 0, 6);
+
+    container.appendChild(canvas);
+  })(document.getElementById("container"));
+</script>
+
+</body>
+
+</html>
