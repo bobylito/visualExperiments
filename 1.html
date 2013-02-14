@@ -20,8 +20,20 @@ void main(){
 </script>
 
 <script id="2d-fragment-shader" type="x-shader/x-fragment">
+precision mediump float;
+
+uniform vec2 u_center;
+
 void main(){
-  gl_FragColor = vec4(gl_FragCoord.xy * vec2(0.001, 0.001) + vec2(0.1, 0.1), 0.5 ,1);
+  float v_comp1 = sin( (distance( gl_FragCoord.xy, u_center ) ) / 90.0 );
+  float v_comp2 = sin( gl_FragCoord.x / 90.0 );
+  float v_comp3 = (v_comp1 + v_comp2) / 2.0 ;
+  gl_FragColor = vec4(
+      sin( (v_comp3 * 3.14) ) * 0.8,
+      0.5 + cos( (v_comp3 * 3.14) ) / 4.0 ,
+      0.5,
+      1
+  );
 }
 </script>
 <script type="text/javascript">
@@ -68,8 +80,9 @@ void main(){
 
     ctx.useProgram(program);
 
-    var posLoc  = ctx.getAttribLocation(program, "a_position"),
-        buffer  = ctx.createBuffer();
+    var posLoc    = ctx.getAttribLocation(program, "a_position"),
+        buffer    = ctx.createBuffer(),
+        centerLoc = ctx.getUniformLocation(program, "u_center");
 
     ctx.bindBuffer(ctx.ARRAY_BUFFER, buffer);
     ctx.bufferData(
@@ -88,7 +101,12 @@ void main(){
     ctx.enableVertexAttribArray(posLoc);
     ctx.vertexAttribPointer(posLoc, 2, ctx.FLOAT, false, 0, 0);
 
-    ctx.drawArrays(ctx.TRIANGLES, 0, 6);
+    setInterval(function(){
+        var x       =  Math.sin( (new Date()).getTime() / 2000 ) * 500 + 500,
+            y       =  Math.sin( (new Date()).getTime() / 4000 ) * 200 + 300,
+            center  = ctx.uniform2f( centerLoc, x, y);
+        ctx.drawArrays(ctx.TRIANGLES, 0, 6);
+    }, 1000/30);
 
     container.appendChild(canvas);
   })(document.getElementById("container"));
