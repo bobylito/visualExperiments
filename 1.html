@@ -26,14 +26,14 @@ uniform vec2 u_center;
 uniform vec2 u_center2;
 
 void main(){
-  float v_comp1 = sin( (distance( gl_FragCoord.xy, u_center ) ) / 300.0 );
-  float v_comp2 = sin( gl_FragCoord.x / 300.0 );
-  float v_comp3 = sin( (distance( gl_FragCoord.xy, u_center2 ) ) / 300.0 );
+  float v_comp1 = sin( (distance( gl_FragCoord.xy, u_center ) ) / 200.0 );
+  float v_comp2 = sin( gl_FragCoord.x / 200.0 );
+  float v_comp3 = sin( (distance( gl_FragCoord.xy, u_center2 ) ) / 200.0 );
   float v_comp4 = (v_comp1 + v_comp2 + v_comp3) / 3.0 ;
   gl_FragColor = vec4(
-      sin( (v_comp4 * 3.14) ) * 0.8,
+      0.2 + sin( (v_comp4 * 3.14) ) * 0.8,
       0.5 + cos( (v_comp4 * 3.14) ) / 4.0 ,
-      0.5,
+      0.2,
       1
   );
 }
@@ -68,12 +68,14 @@ void main(){
         ctx     = canvas.getContext("experimental-webgl"),
         vShader = createShaderFromScriptElement(document, ctx, "2d-vertex-shader"),
         fShader = createShaderFromScriptElement(document, ctx, "2d-fragment-shader"),
-        program = ctx.createProgram();
+        program = ctx.createProgram(),
+        X       = window.innerWidth,
+        Y       = window.innerHeight;
 
-    canvas.height = window.innerHeight;
-    canvas.width  = window.innerWidth;
+    canvas.width  = X;
+    canvas.height = Y;
 
-    ctx.viewport(0, 0, window.innerWidth, window.innerHeight);
+    ctx.viewport(0, 0, X, Y);
 
     ctx.attachShader(program, vShader);
     ctx.attachShader(program, fShader);
@@ -105,10 +107,10 @@ void main(){
     ctx.vertexAttribPointer(posLoc, 2, ctx.FLOAT, false, 0, 0);
 
     setInterval(function(){
-        var x       =  Math.sin( (new Date()).getTime() / 1000 ) * 500 + 500,
-            y       =  Math.sin( (new Date()).getTime() / 1500 ) * 200 + 300,
-            x2      =  Math.sin( (new Date()).getTime() / 2000 ) * 500,
-            y2      =  Math.sin( (new Date()).getTime() / 2000 ) * 200,
+        var x       =  Math.sin( (new Date()).getTime() / 5000 ) * X,
+            y       =  Math.sin( (new Date()).getTime() / 5000 ) * Y,
+            x2      =  Math.sin( (new Date()).getTime() / 4000 ) * X,
+            y2      =  Math.sin( (new Date()).getTime() / 7000 ) * Y,
             center  = ctx.uniform2f( centerLoc, x, y),
             center2 = ctx.uniform2f( centerLoc2, x2, y2);
         ctx.drawArrays(ctx.TRIANGLES, 0, 6);
