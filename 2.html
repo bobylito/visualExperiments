@@ -104,8 +104,7 @@ function texturePerlin( gl, X, Y ){
   for(var x = 0; x < X; x++){
     for(var y = 0; y < Y; y++){
       var p     = y * 4 + x * X * 4,
-          color = perlin2D(x, y, 64, 5) * 255;
-      console.log(color);
+      color = perlin2D(x, y, 6) * 255;
       imgData.data[p] = color;
       imgData.data[p + 1] = color;
       imgData.data[p + 2] = color;
@@ -130,18 +129,25 @@ function texturePerlin( gl, X, Y ){
   return texture;
 }
 
+var noiseF = (function(){
+  var randT = new Array(10000);
+  for(var i = 0; i<10000; i++){
+    randT[i] = Math.random();
+  }
+  return function(i){
+    return randT[ i & 9999];
+  };
+})();
+
 /*
   Takes an integer, returns a number between 1 and -1
 */
-function noise( i ){
-  x = i<<7;
-  return ( 1 - ( (x * (x * x * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824);
+function noise(i){
+  return noiseF(i);
 }
 
 function noise2D(i, j){
-  var x = ((i + j)*57)<<3;
-  return ( 1 - ( (x * (x * x * 15731 + 789221) + 1376312589) & 0x7fffffff) / 1073741824);
-  return Math.random();
+  return noiseF(i * 100 + j);
 }
 
 function smoothNoise1D(i){
@@ -161,10 +167,6 @@ function smoothNoise2D(i, j){
   return center + sides + corners;
 }
 
-function toInt( n ){
-  return parseInt( n.toFixed(0), 10);
-}
-
 /**
 * x1 < x2 and both int
 * 0 =< fract < 1 
@@ -175,7 +177,7 @@ function cosineInterpolate(x1, x2, fract){
 }
 
 function interpolateNoise1D( x ){
-  var xIntPart    = toInt(x),
+  var xIntPart    = Math.floor(x),
       xFloatPart  = x - xIntPart,
       xPlusOne    = xIntPart + 1,
       y1          = smoothNoise1D(xIntPart),
@@ -185,8 +187,8 @@ function interpolateNoise1D( x ){
 }
 
 function interpolateNoise2D( x, y){
-  var xIntPart    = toInt(x),
-      yIntPart    = toInt(y),
+  var xIntPart    = Math.floor(x),
+      yIntPart    = Math.floor(y),
       xFloatPart  = x - xIntPart,
       yFloatPart  = y - yIntPart,
       xPlusOne    = xIntPart + 1,
@@ -202,14 +204,13 @@ function interpolateNoise2D( x, y){
   return i3;
 }
 
-function perlin2D(x, y, p, n){
+function perlin2D(x, y, n){
   var acc = 0;
   for(var i=0; i<n; i++){
-    var freq  = Math.pow(2, i),
-        amp   = Math.pow(p, i);
-    acc += interpolateNoise2D(x * freq, y * freq) * amp;
+    var freq  = Math.pow(2, i);
+    acc += interpolateNoise2D(x / freq, y / freq) ;
   }
-  return acc / (amp );
+  return acc / n;
 }
 
   (function(container){
@@ -220,7 +221,7 @@ function perlin2D(x, y, p, n){
         program = ctx.createProgram(),
         X       = window.innerWidth,
         Y       = window.innerHeight,
-        tex1    = texturePerlin(ctx, 64, 64);
+        tex1    = texturePerlin(ctx, 256, 256);
 
     canvas.width  = X;
     canvas.height = Y;
