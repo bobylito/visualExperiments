@@ -1,0 +1,134 @@
+<!DOCTYPE HTML>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title></title>
+    <style type="text/css">
+      * {margin: 0; padding: 0}
+      #effect {
+        display: block;
+        height: 100vh;
+        width: 100vw;
+      } 
+    </style>
+  </head>
+  <body>
+    <canvas id="effect"></canvas>
+    <script>
+var c = document.getElementById('effect');
+
+var bbox = c.getBoundingClientRect();
+
+c.height = bbox.height;
+c.width = bbox.width;
+
+var ctx = c.getContext('2d');
+
+var size = 30;
+var margins = {
+  h: (bbox.width % size) / 2,
+  v: (bbox.height % size) / 2
+};
+
+var cols = {
+  h: (bbox.width - (margins.h * 2)) / size,
+  v: (bbox.height - (margins.v * 2)) / size
+};
+
+var centers = [];
+for(var i = 0; i < cols.h; i++) {
+  for(var j = 0; j < cols.v; j++) {
+    var center = [
+      margins.h + (size / 2) + size * i,
+      margins.v + (size / 2) + size * j,
+    ];
+    centers.push(center);
+  }
+}
+
+var screenCenter = [
+  bbox.width / 2,
+  bbox.height / 2
+];
+
+var targetCenter = [
+  bbox.width / 2,
+  bbox.height / 2
+];
+
+var diagLength = distance2d(
+  [0, 0],
+  [
+    bbox.width,
+    bbox.height
+  ]
+);
+
+var v = [1, 1];
+var t0 = Date.now();
+
+requestAnimationFrame(function render() {
+  requestAnimationFrame(render);
+  var deltaT = Date.now() - t0;
+
+  var distanceToTarget = distance2d(screenCenter, targetCenter);
+  if(distanceToTarget < 500) {
+    targetCenter = computeNewTarget(bbox, targetCenter); 
+    console.log(targetCenter);
+  }
+
+  v = [
+    clamp(v[0] + Math.cos(3 * deltaT / 1000), -5, 5),
+    clamp(v[1] + Math.sin(4 * deltaT / 1000), -5, 5)
+  ];
+
+  screenCenter = [
+    clamp(screenCenter[0] + v[0], 0, bbox.width),
+    clamp(screenCenter[1] + v[1], 0, bbox.height)
+  ];
+  
+  ctx.fillStyle = 'black';
+  ctx.fillRect(0, 0, bbox.width, bbox.height); 
+
+  ctx.fillStyle = 'white';
+  centers.forEach(function(c){
+    var d = (diagLength / 2 - distance2d(screenCenter, c)) / diagLength;
+    ctx.beginPath();
+    ctx.arc(c[0], c[1], Math.max(size * 3 * Math.pow(d, 3), 0), 0, 2 * Math.PI);
+    ctx.fill();
+  });
+
+});
+
+function distance2d(p1, p2) {
+  return Math.sqrt(
+    (p1[0] - p2[0]) * (p1[0] - p2[0]) + 
+    (p1[1] - p2[1]) * (p1[1] - p2[1])
+  );
+}
+
+function distance1d(a, b) {
+  return Math.abs(b - a);
+}
+
+function direction(a, b) {
+  return a > b ? 1 : -1;
+}
+
+function clamp(v, min, max) {
+  return Math.min(Math.max(v, min), max);
+}
+
+function computeNewTarget(bbox, currentTarget) {
+  var potential = [
+    Math.random() * bbox.width,
+    Math.random() * bbox.height
+  ];
+  if(distance2d(potential, currentTarget) < 300) {
+    return computeNewTarget(bbox, currentTarget);
+  }
+  return potential;
+}
+    </script>
+  </body>
+</html>
