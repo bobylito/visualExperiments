@@ -18,11 +18,11 @@
   var c = a.getContext('2d');
   c.strokeStyle = '#fff';
   c.fillStyle = '#fff';
-  c.shadowBlur = 1;
+  c.shadowBlur = 10;
   c.shadowColor = '#fff';
   c.translate(W / 2, H / 2);
 
-  var vines = [[], [], []]
+  var vines = initVines(5);
   var currentFrame = 0;
 
   loop();
@@ -31,22 +31,23 @@
     requestAnimationFrame(loop);
     currentFrame++;
     c.clearRect(-a.width / 2, -a.height / 2, a.width, a.height);
-    c.fillText(currentFrame, 0, 0);
+    // Debugging display
+    // c.fillText([currentFrame, vines[0].a], 0, 0);
 
     vines.forEach(l => {
       addPoint(l, currentFrame);
-      if(l.length > 60) l.splice(0, 1);
+      if(l.length > 30) l.splice(0, 1);
       render(c, l);
     });
   };
 
   function render(ctx, pts) {
     var currentP = [0, 0];
-    var currentA = 1;
+    var currentA = pts.a;
+    ctx.beginPath();
     ctx.moveTo(0, 0);
 
-    ctx.beginPath();
-    pts.forEach((pt, _, i) => {
+    pts.forEach(pt => {
       currentA += pt.a;
       currentP = [
         currentP[0] + Math.cos(currentA) * pt.l,
@@ -54,6 +55,7 @@
       ];
       ctx.lineTo(currentP[0], currentP[1]);
     });
+    pts.a = pts.a + pts[0].a;
     ctx.stroke();
   }
 
@@ -63,6 +65,16 @@
       a: a,
       l: 8
     });
+  }
+
+  function initVines(n) {
+    var vines = [];
+    for(var i = 0; i < n; i++) {
+      var vine = [];
+      vine.a = 0;
+      vines.push(vine);
+    }
+    return vines;
   }
 
 </script>
