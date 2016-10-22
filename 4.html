@@ -22,7 +22,7 @@
   c.shadowColor = '#fff';
   c.translate(W / 2, H / 2);
 
-  var vines = initVines(5);
+  var vines = initVines(15);
   var currentFrame = 0;
 
   loop();
@@ -30,15 +30,19 @@
   function loop() {
     requestAnimationFrame(loop);
     currentFrame++;
-    c.clearRect(-a.width / 2, -a.height / 2, a.width, a.height);
+    c.clearRect(-W / 2, -H / 2, a.width, a.height);
     // Debugging display
     // c.fillText([currentFrame, vines[0].a], 0, 0);
 
     vines.forEach(l => {
       addPoint(l, currentFrame);
-      if(l.length > 30) l.splice(0, 1);
+      if(l.length > 60) l.splice(0, 1);
       render(c, l);
     });
+
+    c.beginPath();
+    c.arc(0, 0, 5, 0, 7);
+    c.fill();
   };
 
   function render(ctx, pts) {
@@ -47,7 +51,10 @@
     ctx.beginPath();
     ctx.moveTo(0, 0);
 
-    pts.forEach(pt => {
+    c.strokeStyle = 'hsl('+currentA * 60+', 100%, 80%)';
+    c.shadowColor = 'hsl('+currentA * 60+', 100%, 90%)';;
+
+    pts.forEach((pt, i) => {
       currentA += pt.a;
       currentP = [
         currentP[0] + Math.cos(currentA) * pt.l,
@@ -60,7 +67,7 @@
   }
 
   function addPoint(pts, f) {
-    var a = f % 30 === 0 ? (Math.random() - 0.5) / 4 : pts[pts.length - 1].a;
+    var a = f % 10 === 0 ? (Math.random() - 0.5) / 4 : pts[pts.length - 1].a;
     return pts.push({
       a: a,
       l: 8
