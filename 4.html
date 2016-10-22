@@ -22,23 +22,27 @@
   c.shadowColor = '#fff';
   c.translate(W / 2, H / 2);
 
-  var l = [];
+  var vines = [[], [], []]
+  var currentFrame = 0;
 
   loop();
 
   function loop() {
     requestAnimationFrame(loop);
-
-    l = addPoint(l);
-    if(l.length > 300) l.splice(0, 1);
-
+    currentFrame++;
     c.clearRect(-a.width / 2, -a.height / 2, a.width, a.height);
-    render(c, l);
+    c.fillText(currentFrame, 0, 0);
+
+    vines.forEach(l => {
+      addPoint(l, currentFrame);
+      if(l.length > 60) l.splice(0, 1);
+      render(c, l);
+    });
   };
 
   function render(ctx, pts) {
     var currentP = [0, 0];
-    var currentA = 0;
+    var currentA = 1;
     ctx.moveTo(0, 0);
 
     ctx.beginPath();
@@ -51,14 +55,13 @@
       ctx.lineTo(currentP[0], currentP[1]);
     });
     ctx.stroke();
-    console.log('toto');
   }
 
-  function addPoint(pts) {
-    var a = pts.length % 10 === 0 ? (Math.random() * 3 - 1.5) : 0;
-    return pts.concat({
+  function addPoint(pts, f) {
+    var a = f % 30 === 0 ? (Math.random() - 0.5) / 4 : pts[pts.length - 1].a;
+    return pts.push({
       a: a,
-      l: 1
+      l: 8
     });
   }
 
