@@ -1,0 +1,65 @@
+<style type="text/css">
+  #a{
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, #225, #221);
+  }
+</style>
+
+<canvas id="a"></canvas>
+
+<script type="text/javascript">
+  var box = a.getBoundingClientRect();
+  W = a.width = 540;
+  H = a.height = (box.height / box.width) * 540;
+
+  var c = a.getContext('2d');
+  c.strokeStyle = '#fff';
+  c.fillStyle = '#fff';
+  c.shadowBlur = 1;
+  c.shadowColor = '#fff';
+  c.translate(W / 2, H / 2);
+
+  var l = [];
+
+  loop();
+
+  function loop() {
+    requestAnimationFrame(loop);
+
+    l = addPoint(l);
+    if(l.length > 300) l.splice(0, 1);
+
+    c.clearRect(-a.width / 2, -a.height / 2, a.width, a.height);
+    render(c, l);
+  };
+
+  function render(ctx, pts) {
+    var currentP = [0, 0];
+    var currentA = 0;
+    ctx.moveTo(0, 0);
+
+    ctx.beginPath();
+    pts.forEach((pt, _, i) => {
+      currentA += pt.a;
+      currentP = [
+        currentP[0] + Math.cos(currentA) * pt.l,
+        currentP[1] + Math.sin(currentA) * pt.l
+      ];
+      ctx.lineTo(currentP[0], currentP[1]);
+    });
+    ctx.stroke();
+    console.log('toto');
+  }
+
+  function addPoint(pts) {
+    var a = pts.length % 10 === 0 ? (Math.random() * 3 - 1.5) : 0;
+    return pts.concat({
+      a: a,
+      l: 1
+    });
+  }
+
+</script>
