@@ -1,0 +1,187 @@
+<style type="text/css">
+  #a{
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: #003; /* radial-gradient(circle, #225, #221); */
+  }
+
+  #logger {
+    position:fixed;
+    top: 0; left: 0;
+    width: 50%;
+    height: 20%;
+    background: #fff; 
+    overflow: auto;
+    display: none;
+  }
+</style>
+
+<canvas id="a"></canvas>
+
+<div id="logger"></div>
+
+<script type="text/javascript">
+  window.onerror = function(msg, src, l) {
+    var log = document.getElementById('logger');
+    log.innerHTML = msg + ' l.' +  l + '<br>' + log.innerHTML;
+  };
+
+  var box = a.getBoundingClientRect();
+  W = a.width = 1024;
+  H = a.height = (box.height / box.width) * 1024;
+
+  var c = a.getContext('2d');
+  c.strokeStyle = '#fff';
+  c.fillStyle = '#fff';
+  c.shadowBlur = 0;
+  c.shadowColor = '#fff';
+  c.lineWidth = 2;
+  c.translate(W / 2, H / 2);
+
+  var currentFrame = 0;
+
+  var baseHexagon = getPolygon(6, [0, 0], 20);
+  var paths = [];
+  baseHexagon.forEach(function(p) {
+    paths.push(getPath(p, 30, p));
+  });
+
+  loop();
+
+  function loop() {
+    requestAnimationFrame(loop);
+    currentFrame++;
+    c.fillStyle = 'rgba(0, 0, 50, 0.01)';
+    c.shadowBlur = 0;
+    c.fillRect(-W / 2, -H / 2, a.width, a.height);
+    c.shadowBlur = 0;
+    c.fillStyle = '#fff';
+    // Debugging display
+    // c.fillText(currentFrame, 0, 0);
+
+    // vines.forEach(l => {
+    //   addPoint(l, currentFrame);
+    //   if(l.length > 60) l.splice(0, 1);
+    //   render(c, l);
+    // });
+
+    //c.shadowBlur = 10 * (Math.cos(currentFrame / 20) + 1);
+
+    c.beginPath();
+    // recDrawHexagon(c, baseHexagon, 3);
+    drawPolygon(c, baseHexagon, true);
+    paths.forEach(function(path) {
+      drawPolygon(c, path, false);
+    });
+    // baseHexagon.forEach(function(p) {
+    //   drawHexagon(c, p, 20);
+    // });
+    c.stroke();
+    // c.fill();
+
+    if(currentFrame % 100 === 0) {
+      paths = [];
+      baseHexagon.forEach(function(p) {
+        paths.push(getPath(p, 30, p));
+      });
+    }
+  };
+
+  function recDrawHexagon(c, hexagon, remainingStep) {
+    if(remainingStep === 0) {
+      return;
+    }
+    drawPolygon(c, hexagon);
+    hexagon.forEach(function(p) {
+      recDrawHexagon(c, getPolygon(6, p, 20), remainingStep - 1);
+    });
+  }
+
+
+  function drawHexagon(c, center, radius) {
+    drawPolygon(c, getPolygon(6, center, radius));
+  }
+
+  function drawPolygon(c, polygon, closePolygon) {
+    c.moveTo(polygon[0][0], polygon[0][1]);
+    polygon.forEach(p => c.lineTo(p[0], p[1]));
+    if(closePolygon) c.lineTo(polygon[0][0], polygon[0][1]);
+  }
+
+  function getPolygon(nbPoints, center, radius) {
+    const angle = (2 * Math.PI) / nbPoints;
+    var polygon = [];
+    for(var i = nbPoints ; i > 0; i--) {
+      polygon.push([
+        center[0] + radius * Math.cos(angle * i),
+        center[1] + radius * Math.sin(angle * i)
+      ]);
+    }
+    return polygon;
+  }
+
+  function getPath(start, nbPoints, direction) {
+    var path = [start];
+    var current = start;
+    for(var i = nbPoints; i > 0; i--) {
+      var rand = Math.random();
+      var newStep;
+      if(rand > .8) {
+        var theta = angleFromPoint(direction);
+        newStep = translate(current, [
+          direction[0] + 20 * Math.cos(theta + (2 * Math.PI) / 6),
+          direction[1] + 20 * Math.sin(theta + (2 * Math.PI) / 6)
+        ]);
+      }
+      else if (rand < 0.2) {
+        var theta = angleFromPoint(direction);
+        newStep = translate(current, [
+          direction[0] - 20 * Math.cos(theta + (2 * Math.PI) / 6),
+          direction[1] - 20 * Math.sin(theta + (2 * Math.PI) / 6)
+        ]);
+      }
+      else newStep = translate(current, direction);
+      path.push(newStep);
+      current = newStep;
+    }
+    return path;
+  }
+
+  function nextPoint(p) {
+  }
+
+  function angleFromPoint(p) {
+    return Math.atan2(p[1], p[0]);
+  }
+
+  function translate(p, v) {
+    return [
+      p[0] + v[0],
+      p[1] + v[1]
+    ];
+  }
+  
+  // function render(ctx, pts) {
+  //   //var currentP = [0, 0];
+  //   var currentA = pts.a;
+  //   ctx.beginPath();
+
+  //   ctx.moveTo(0, 0);
+
+  //   //c.strokeStyle = 'hsl('+currentA * 60+', 100%, 80%)';
+  //   //c.shadowColor = 'hsl('+currentA * 60+', 100%, 90%)';;
+
+  //   // pts.forEach((pt, i) => {
+  //   //   currentA += pt.a;
+  //   //   currentP = [
+  //   //     currentP[0] + Math.cos(currentA) * pt.l,
+  //   //     currentP[1] + Math.sin(currentA) * pt.l
+  //   //   ];
+  //   //   ctx.lineTo(currentP[0], currentP[1]);
+  //   // });
+  //   // pts.a = pts.a + pts[0].a;
+  //   ctx.stroke();
+  // }
+</script>
