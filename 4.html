@@ -51,8 +51,8 @@
     ctx.beginPath();
     ctx.moveTo(0, 0);
 
-    c.strokeStyle = 'hsl('+currentA * 60+', 100%, 80%)';
-    c.shadowColor = 'hsl('+currentA * 60+', 100%, 90%)';;
+    ctx.strokeStyle = 'hsl('+currentA * 60+', 100%, 80%)';
+    ctx.shadowColor = 'hsl('+currentA * 60+', 100%, 90%)';
 
     pts.forEach((pt, i) => {
       currentA += pt.a;
