@@ -58,9 +58,6 @@ function pointsToPath(pts) {
   }));
   ptsWithAngle.sort((a, b) => b.angle - a.angle);
   return ptsWithAngle;
-
-  // get angle of all points
-  // sort by angle
 }
 
 function distance(a, b) {
