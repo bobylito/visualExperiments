@@ -14,7 +14,7 @@
     height: 20%;
     background: #fff; 
     overflow: auto;
-    display: none;
+    /* display: none; */
   }
 </style>
 
@@ -45,13 +45,18 @@
   var baseHexagon = getPolygon(6, [0, 0], 20);
   var paths = [];
   baseHexagon.forEach(function(p) {
-    paths.push(getPath(p, 30, p));
+    paths.push([p, p, p]);
   });
 
   loop();
 
   function loop() {
     requestAnimationFrame(loop);
+
+    if(currentFrame % 100 === 0) {
+      paths.map(nextPoint);
+    }
+
     currentFrame++;
     c.fillStyle = 'rgba(0, 0, 50, 0.01)';
     c.shadowBlur = 0;
@@ -73,20 +78,13 @@
     // recDrawHexagon(c, baseHexagon, 3);
     drawPolygon(c, baseHexagon, true);
     paths.forEach(function(path) {
-      drawPolygon(c, path, false);
+      drawPolygon(c, [path[0], path[1]], false);
     });
     // baseHexagon.forEach(function(p) {
     //   drawHexagon(c, p, 20);
     // });
     c.stroke();
     // c.fill();
-
-    if(currentFrame % 100 === 0) {
-      paths = [];
-      baseHexagon.forEach(function(p) {
-        paths.push(getPath(p, 30, p));
-      });
-    }
   };
 
   function recDrawHexagon(c, hexagon, remainingStep) {
@@ -122,34 +120,36 @@
     return polygon;
   }
 
-  function getPath(start, nbPoints, direction) {
-    var path = [start];
-    var current = start;
-    for(var i = nbPoints; i > 0; i--) {
-      var rand = Math.random();
-      var newStep;
-      if(rand > .8) {
-        var theta = angleFromPoint(direction);
-        newStep = translate(current, [
-          direction[0] + 20 * Math.cos(theta + (2 * Math.PI) / 6),
-          direction[1] + 20 * Math.sin(theta + (2 * Math.PI) / 6)
-        ]);
-      }
-      else if (rand < 0.2) {
-        var theta = angleFromPoint(direction);
-        newStep = translate(current, [
-          direction[0] - 20 * Math.cos(theta + (2 * Math.PI) / 6),
-          direction[1] - 20 * Math.sin(theta + (2 * Math.PI) / 6)
-        ]);
-      }
-      else newStep = translate(current, direction);
-      path.push(newStep);
-      current = newStep;
-    }
-    return path;
-  }
 
-  function nextPoint(p) {
+  // path = [previous, current, direction]
+  function nextPoint(path) {
+    var direction = path[2];
+    var rand = Math.random();
+    var current = path[1];
+    var newStep;
+   //  if(rand > .8) {
+   //    var theta = angleFromPoint(direction);
+   //    newStep = translate(current, [
+   //      direction[0] + 20 * Math.cos(theta + (2 * Math.PI) / 6),
+   //      direction[1] + 20 * Math.sin(theta + (2 * Math.PI) / 6)
+   //    ]);
+   //  }
+   //  else if (rand < 0.2) {
+   //    var theta = angleFromPoint(direction);
+   //    newStep = translate(current, [
+   //      direction[0] - 20 * Math.cos(theta + (2 * Math.PI) / 6),
+   //      direction[1] - 20 * Math.sin(theta + (2 * Math.PI) / 6)
+   //    ]);
+   //  }
+   //  else 
+      
+    newStep = translate(current, direction);
+
+    return [
+      current,
+      newStep,
+      direction
+    ];
   }
 
   function angleFromPoint(p) {
@@ -184,4 +184,32 @@
   //   // pts.a = pts.a + pts[0].a;
   //   ctx.stroke();
   // }
+
+  function getPath(start, nbPoints, direction) {
+    var path = [start];
+    var current = start;
+    for(var i = nbPoints; i > 0; i--) {
+      var rand = Math.random();
+      var newStep;
+      if(rand > .8) {
+        var theta = angleFromPoint(direction);
+        newStep = translate(current, [
+          direction[0] + 20 * Math.cos(theta + (2 * Math.PI) / 6),
+          direction[1] + 20 * Math.sin(theta + (2 * Math.PI) / 6)
+        ]);
+      }
+      else if (rand < 0.2) {
+        var theta = angleFromPoint(direction);
+        newStep = translate(current, [
+          direction[0] - 20 * Math.cos(theta + (2 * Math.PI) / 6),
+          direction[1] - 20 * Math.sin(theta + (2 * Math.PI) / 6)
+        ]);
+      }
+      else newStep = translate(current, direction);
+      path.push(newStep);
+      current = newStep;
+    }
+    return path;
+  }
+
 </script>

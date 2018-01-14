@@ -12,14 +12,25 @@ function loop(fn) {
   });
 }
 
-function drawPoly(ctx, s) {
+function polyToPath(ctx, s) {
   ctx.beginPath();
   s.forEach(p => {
     ctx.lineTo(p[0], p[1]);
   });
   ctx.closePath();
+}
+
+function fillPoly(ctx, s) {
+  polyToPath(ctx, s);
+  ctx.fill();
+}
+
+function strokePoly(ctx, s) {
+  polyToPath(ctx, s);
   ctx.stroke();
 }
+
+var drawPoly = strokePoly;
 
 function square(w, i) {
   return rotate(
@@ -68,4 +79,20 @@ function pointsToPath(pts) {
   }));
   ptsWithAngle.sort((a, b) => b.angle - a.angle);
   return ptsWithAngle;
+}
+
+function dir(a, b) {
+  return [
+    b[0] - a[0],
+    b[1] - a[1]
+  ];
+}
+
+function mul(scal, v) {
+  return v.map(x => scal * x);
+}
+
+function add(v1, v2) {
+  if(v1.length !== v2.length) throw new Error('Cannot add vectors, must have the same size');
+  return v1.map((p1, i) => p1 + v2[i]);
 }
