@@ -7,17 +7,17 @@ function loop(fn) {
 
       fn(f);
     } catch(e) {
-      alert(e.toString());
+      alert('Error: ' + e.message + '. In ' + e.fileName + ' at l.' + e.lineNumber);
     }
   });
 }
 
-function polyToPath(ctx, s) {
+function polyToPath(ctx, s, pathOpen) {
   ctx.beginPath();
   s.forEach(p => {
     ctx.lineTo(p[0], p[1]);
   });
-  ctx.closePath();
+  if(!pathOpen) ctx.closePath();
 }
 
 function fillPoly(ctx, s) {
@@ -25,8 +25,8 @@ function fillPoly(ctx, s) {
   ctx.fill();
 }
 
-function strokePoly(ctx, s) {
-  polyToPath(ctx, s);
+function strokePoly(ctx, s, pathOpen) {
+  polyToPath(ctx, s, pathOpen);
   ctx.stroke();
 }
 
