@@ -11,6 +11,8 @@ ctx.translate(W / 2, H / 2);
 ctx.shadowColor = '#fff';
 ctx.shadowBlur = 10;
 ctx.shadowColor = '#fff';
+ctx.lineWidth = 5;
+ctx.lineJoin = 'round';
 
 const polyPath = rotate(polyAngle(200, 5, Math.PI * 4/5), Math.PI * 3 / 2).reverse();
 const speed = 10;
