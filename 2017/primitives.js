@@ -57,6 +57,17 @@ function poly(w, n) {
   return poly;
 }
 
+function polyAngle(w, n, angle) {
+  let poly = [];
+  for(let i = 0; i < n; i++) {
+    poly.push([
+      w * Math.cos(i * angle),
+      w * Math.sin(i * angle)
+    ]);
+  }
+  return poly;
+}
+
 function translate(poly, v) {
   poly.forEach(p => { 
     p[0] = p[0] + v[0];
